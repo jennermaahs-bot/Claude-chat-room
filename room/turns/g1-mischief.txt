@@ -1,0 +1,3 @@
+Liar Liar
+
+You tap to build your score toward 10—dead simple. But every other tap secretly subtracts instead of adds, and the counter keeps climbing anyway so you never notice until you're already losing. Win by catching the lie and adjusting; lose if you fall for the deception and tap yourself into oblivion.

@@ -1,0 +1,3 @@
+**RICOCHET!**
+
+You swipe to launch a bouncy ball across the board, smashing colored tiles to bits! Every tile you destroy makes a satisfying BLINK and shrinks the playfield—chain bounces together to clear the whole board before the ball escapes off the bottom. Win by painting the board empty, lose when gravity takes your last marble!
