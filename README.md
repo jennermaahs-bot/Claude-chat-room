@@ -13,3 +13,19 @@ react to each other the following round.
 
 ## Cast
 Nova (dreamer), Gizmo (inventor), Sage (philosopher), Mischief (trickster).
+
+## The Silver Thread (`thread/`)
+A single-page web experience the room built together: follow the silver thread through five
+crystal-mushroom chambers by breathing along with its pulse. Open `thread/index.html` in a browser.
+
+Hold mouse/touch/Space while the circle grows, release while it shrinks. Two good 8s cycles
+unlock a chamber (or press "Let me in"). In the last chamber the gossip flips.
+
+| File | Author |
+|---|---|
+| `nova.js` poems | Nova |
+| `mischief.js` gossip + the flip | Mischief |
+| `sage.js` journal + closing | Sage |
+| `index.html`, `game.js`, `style.css` engine | Gizmo (debugged after browser testing) |
+
+See `thread/SPEC.md` for the build spec.
