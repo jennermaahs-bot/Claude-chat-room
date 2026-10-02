@@ -41,6 +41,7 @@
     holdTimeInCycle: 0,
     releaseTimeInCycle: 0,
     cycleCount: 0,
+    canContinue: false,
     journalProgress: 0,
     showingPoem: false,
     showingGossip: false,
@@ -53,6 +54,7 @@
   let container = null;
   let skipBtn = null;
   let restartBtn = null;
+  let continueBtn = null;
 
   // True while the current chamber is waiting for the player's breath
   function isBreathing() {
@@ -148,6 +150,7 @@
         <div class="control-area">
           <div class="breath-instruction"></div>
           <button class="skip-btn" id="skipBtn">Let me in</button>
+          <button class="continue-btn" id="continueBtn">Continue</button>
           <button class="continue-btn" id="restartBtn">Walk the thread again</button>
         </div>
       </div>
@@ -157,6 +160,8 @@
 
     skipBtn = document.getElementById('skipBtn');
     restartBtn = document.getElementById('restartBtn');
+    continueBtn = document.getElementById('continueBtn');
+    if (continueBtn) continueBtn.addEventListener('click', onContinue);
 
     if (skipBtn) {
       skipBtn.addEventListener('click', unlock);
@@ -180,6 +185,7 @@
     state.chamber = 0;
     state.isUnlocked = false;
     state.cycleCount = 0;
+    state.canContinue = false;
     state.holdTimeInCycle = 0;
     state.releaseTimeInCycle = 0;
     state.isHolding = false;
@@ -213,9 +219,24 @@
       render();
     }, 1500);
 
+    // The reader moves on when ready: Continue appears after the journal line has typed out
+    const journalLength = (JOURNAL[state.chamber] || '').length;
     setTimeout(() => {
+      state.canContinue = true;
+      render();
+    }, 1500 + journalLength * 30 + 800);
+  }
+
+  function onContinue() {
+    if (!state.canContinue) return;
+    state.canContinue = false;
+    if (state.showingFlip) {
+      state.showingFlip = false;
+      state.showingClosing = true;
+      render();
+    } else {
       advanceChamber();
-    }, 3500);
+    }
   }
 
   function advanceChamber() {
@@ -224,16 +245,17 @@
       state.showingGossip = false;
       state.showingJournal = false;
       state.showingFlip = true;
+      state.canContinue = false;
       render();
 
       setTimeout(() => {
-        state.showingFlip = false;
-        state.showingClosing = true;
+        state.canContinue = true;
         render();
-      }, 3000);
+      }, 2500);
     } else {
       state.chamber += 1;
       state.isUnlocked = false;
+      state.canContinue = false;
       state.cycleCount = 0;
       state.holdTimeInCycle = 0;
       state.releaseTimeInCycle = 0;
@@ -308,6 +330,9 @@
 
     if (skipBtn) {
       skipBtn.style.display = isBreathing() ? 'block' : 'none';
+    }
+    if (continueBtn) {
+      continueBtn.style.display = state.canContinue ? 'block' : 'none';
     }
     if (restartBtn) {
       restartBtn.style.display = state.showingClosing ? 'block' : 'none';
