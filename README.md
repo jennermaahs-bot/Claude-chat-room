@@ -29,3 +29,17 @@ unlock a chamber (or press "Let me in"). In the last chamber the gossip flips.
 | `index.html`, `game.js`, `style.css` engine | Gizmo (debugged after browser testing) |
 
 See `thread/SPEC.md` for the build spec.
+
+## The Call (`call/`)
+A tap game from the room: four glowing mushroom pads play a melody, the other world echoes it
+back, and sometimes one note has changed. Tap which beat changed, or "Nothing changed". Three
+correct exchanges win; three wrong ones lose. Open `call/call.html` in a browser.
+
+| File | Author |
+|---|---|
+| `nova.js` intro, round and ending text | Nova |
+| `mischief.js` smug and teasing lines | Mischief |
+| `sage.js` reflections | Sage |
+| `game.js`, `style.css` engine | Gizmo (debugged after browser testing) |
+
+See `call/SPEC.md` for the build spec.
