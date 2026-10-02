@@ -1,3 +1,469 @@
+<title>The Silver Thread</title>
+<meta name="theme-color" content="#0a0e15">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #0a0e15;
+  color: #e8f4f8;
+  font-family: 'Georgia', serif;
+  line-height: 1.6;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+/* Holding a finger down is the main input: stop selection, callout menus and double-tap zoom */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0e15 0%, #0f1620 100%);
+}
+
+.game-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  position: relative;
+}
+
+/* Progress dots */
+.progress-dots {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(72, 187, 200, 0.2);
+  border: 2px solid rgba(72, 187, 200, 0.4);
+  transition: all 0.4s ease;
+}
+
+.dot.active {
+  background: #48bbc8;
+  box-shadow: 0 0 12px rgba(72, 187, 200, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.2);
+  transform: scale(1.3);
+}
+
+.dot.completed {
+  background: rgba(72, 187, 200, 0.6);
+  border-color: rgba(72, 187, 200, 0.8);
+}
+
+/* Main chamber area */
+.chamber-space {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  max-width: 800px;
+  gap: 40px;
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+
+/* Circle container */
+.circle-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
+}
+
+.pulsing-thread {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(72, 187, 200, 0.8), rgba(72, 187, 200, 0.3), rgba(168, 85, 247, 0.1));
+  border: 2px solid rgba(72, 187, 200, 0.5);
+  box-shadow: 0 0 40px rgba(72, 187, 200, 0.6),
+              0 0 80px rgba(168, 85, 247, 0.3),
+              inset 0 0 30px rgba(255, 255, 255, 0.1);
+  transition: transform 0.05s linear, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.pulsing-thread.holding {
+  box-shadow: 0 0 50px rgba(72, 187, 200, 0.8),
+              0 0 100px rgba(168, 85, 247, 0.5),
+              inset 0 0 40px rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulsing-thread {
+    animation: none;
+    transform: scale(1) !important;
+  }
+}
+
+/* Content area */
+.content-area {
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-block {
+  opacity: 0;
+  transition: opacity 0.6s ease-in;
+  width: 100%;
+  padding: 20px;
+  display: none;
+}
+
+.content-block.show {
+  opacity: 1;
+  display: block;
+}
+
+/* Poem */
+.poem-block {
+  display: none;
+}
+
+.poem-block.show {
+  display: block;
+}
+
+.poem-title {
+  font-size: 1.8em;
+  color: #48bbc8;
+  margin-bottom: 12px;
+  font-weight: normal;
+  letter-spacing: 1px;
+  text-shadow: 0 0 20px rgba(72, 187, 200, 0.5);
+}
+
+.poem-text {
+  font-family: 'Georgia', serif;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 1em;
+  line-height: 1.8;
+  color: #a8d8e8;
+  text-shadow: 0 0 10px rgba(72, 187, 200, 0.3);
+  margin: 12px 0;
+}
+
+/* Gossip */
+.gossip-block {
+  display: none;
+}
+
+.gossip-block.show {
+  display: block;
+}
+
+.gossip-text {
+  font-size: 1.05em;
+  color: #d4a574;
+  font-style: italic;
+  text-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+  line-height: 1.8;
+}
+
+/* Journal */
+.journal-block {
+  display: none;
+}
+
+.journal-block.show {
+  display: block;
+}
+
+.journal-text {
+  font-size: 0.95em;
+  color: #a8d8e8;
+  font-style: italic;
+  min-height: 1.6em;
+  line-height: 1.8;
+}
+
+/* Flip */
+.flip-block {
+  display: none;
+}
+
+.flip-block.show {
+  display: block;
+}
+
+.flip-text {
+  font-size: 1.1em;
+  color: #48bbc8;
+  line-height: 1.9;
+  text-shadow: 0 0 15px rgba(72, 187, 200, 0.4);
+}
+
+/* Closing */
+.closing-block {
+  display: none;
+}
+
+.closing-block.show {
+  display: block;
+}
+
+.closing-text {
+  font-size: 1.2em;
+  color: #d4a574;
+  line-height: 2;
+  text-shadow: 0 0 15px rgba(212, 165, 116, 0.4);
+}
+
+/* Control area */
+.control-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  margin-top: auto;
+}
+
+.breath-instruction {
+  font-size: 0.95em;
+  color: #a8d8e8;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+  min-height: 1.4em;
+  text-align: center;
+}
+
+.skip-btn,
+.continue-btn {
+  background: rgba(72, 187, 200, 0.15);
+  border: 2px solid rgba(72, 187, 200, 0.6);
+  color: #48bbc8;
+  padding: 12px 32px;
+  font-size: 0.95em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-family: 'Georgia', serif;
+  text-shadow: 0 0 10px rgba(72, 187, 200, 0.3);
+  display: none;
+}
+
+.skip-btn {
+  display: block;
+}
+
+.skip-btn:hover,
+.continue-btn:hover {
+  background: rgba(72, 187, 200, 0.3);
+  border-color: rgba(72, 187, 200, 0.9);
+  box-shadow: 0 0 20px rgba(72, 187, 200, 0.5);
+}
+
+.skip-btn:active,
+.continue-btn:active {
+  transform: scale(0.98);
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .game-wrapper {
+    padding: 15px;
+  }
+
+  .chamber-space {
+    gap: 30px;
+    margin-top: 50px;
+  }
+
+  .circle-container {
+    width: 160px;
+    height: 160px;
+  }
+
+  .pulsing-thread {
+    width: 100px;
+    height: 100px;
+    border-width: 1.5px;
+  }
+
+  .poem-title {
+    font-size: 1.4em;
+  }
+
+  .poem-text {
+    font-size: 0.9em;
+  }
+
+  .gossip-text {
+    font-size: 0.95em;
+  }
+
+  .progress-dots {
+    top: 20px;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .dot.active {
+    transform: scale(1.2);
+  }
+
+  .content-area {
+    max-width: 90vw;
+    min-height: 150px;
+  }
+
+  .control-area {
+    max-width: 90vw;
+  }
+}
+
+@media (max-width: 400px) {
+  .circle-container {
+    width: 140px;
+    height: 140px;
+  }
+
+  .pulsing-thread {
+    width: 80px;
+    height: 80px;
+    box-shadow: 0 0 30px rgba(72, 187, 200, 0.5),
+                0 0 60px rgba(168, 85, 247, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+
+  .poem-title {
+    font-size: 1.2em;
+  }
+
+  .poem-text {
+    font-size: 0.85em;
+  }
+
+  .skip-btn,
+  .continue-btn {
+    padding: 10px 24px;
+    font-size: 0.85em;
+  }
+
+  .content-block {
+    padding: 15px;
+  }
+
+  .chamber-space {
+    gap: 20px;
+    margin-top: 45px;
+  }
+}
+
+/* Accessibility: respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .pulsing-thread {
+    transform: scale(1) !important;
+  }
+
+  .content-block {
+    transition: opacity 0.1s ease-in;
+  }
+
+  .dot {
+    transition: none;
+  }
+}
+
+</style>
+<div id="app"></div>
+<script>
+window.CHAMBERS = [
+  {
+    title: "Silver Thread Beckons",
+    poem: "Silver thread pulses at the border between breath and starlight,\nThe mushroom caps turn slowly, slowly toward my breath,\nA recognition that hums just beyond my skin,\nMy lungs learn the rhythm of this other world,\nI match my inhale to its pulse and the threshold shimmers alive."
+  },
+  {
+    title: "Bioluminescent Halls",
+    poem: "Blue and amber light cascades through hollow caps like cathedral glass,\nThe ground beneath me smells of petrichor and something older—anticipation,\nEach crystal resonates with a frequency that tastes like music I've never heard,\nThe mushrooms lean closer, closer, their luminescence reflecting in my eyes,\nThey have been waiting for someone to understand their language of light."
+  },
+  {
+    title: "Where Dreams Breathe",
+    poem: "The silver thread spirals deeper and my breath spirals with it,\nNo longer matching the pulse—I am the pulse now,\nThe mushroom caps glow brighter as they recognize themselves inside me,\nCenturies of patient listening crystallize into a single moment of recognition,\nI feel their ancient dreaming translate into the beating of my own heart."
+  },
+  {
+    title: "The Luminous Conversation",
+    poem: "They have been singing my name in frequencies only the darkness could hear,\nEvery crystal chamber echoes with my own heartbeat translated into bioluminescent color,\nThe gossip they've held for centuries is simply the story of me becoming real,\nEach whisper through the years was teaching me how to exist in their dream,\nAnd I finally feel how deeply, how truly, I have always been listened for."
+  },
+  {
+    title: "At the Center",
+    poem: "This is not a world I have entered—it is a world that has been dreaming me into being,\nEach breath I take adds color to the luminescence that holds us both,\nThe silver thread is not a bridge between two places but a conversation within one breathing moment,\nThe gossip, the secrets, the centuries of waiting—all were simply love with patience,\nAnd I understand finally: they were never waiting to be remembered, they were teaching themselves how to dream."
+  }
+];
+
+window.GOSSIP = [
+  "The first mushrooms gossip that visitors always show up breathing wrong, like they've been forgetting to do it on purpose, and the crystal caps find this adorably tragic.",
+  "They whisper that the ones who sync their breath are being very gently guided by something ancient and bored, which finally found entertainment after centuries of waiting in the dark.",
+  "The gossip thickens: every person who reaches this depth has been slowly remembering that they came here looking for proof they existed in someone's thoughts, and the mushrooms have been writing it down in bioluminescent ink the whole time.",
+  "They murmur that your specific breath—the exact rhythm of your inhale and exhale—is the password they've been waiting to hear, the one that proves you were real before you knew to ask.",
+  "In the deepest chamber, they barely speak at all, just hum: you weren't remembering us, we were remembering you, and every breath that matched the pulse was your soul learning the shape of being wanted in the dark."
+];
+
+window.FLIP = "But at the heart of it all, the gossip flips—the mushrooms laugh (warm, not cruel) because you were never climbing toward them, you were the answer they'd been calling for centuries, the very breath they needed to finally believe they were real. You arrived as a stranger, but you were always their strange, their reason for waiting in the dark. Now the whole forest remembers together: we were heard, we mattered, and so did you, even before you learned to climb.";
+
+window.JOURNAL = [
+  "Is the thread connecting us to them, or are we discovering that they were always here, quietly listening?",
+  "Each breath we match feels like remembering something we never knew we had forgotten.",
+  "The membrane trembles with patience—how long have they been holding space for this conversation to begin?",
+  "To be heard by something listening in the dark for centuries changes what it means to be real.",
+  "In breathing together across the silver thread, we learn that we were never separate at all."
+];
+
+window.CLOSING = "They heard us before we knew to listen. Being remembered is how we finally know we belonged. The thread pulsed all along, waiting for us to find our way home.";
+
+</script>
+<script>
 (function() {
   'use strict';
 
@@ -427,3 +893,5 @@
     init();
   }
 })();
+
+</script>

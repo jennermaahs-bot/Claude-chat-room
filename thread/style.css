@@ -13,10 +13,17 @@ html, body {
   line-height: 1.6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-  }
+:root {
+  color-scheme: dark;
+}
+
+/* Holding a finger down is the main input: stop selection, callout menus and double-tap zoom */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 #app {
